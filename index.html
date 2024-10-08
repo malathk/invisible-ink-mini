@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Spotlight Sentences</title>
+
+    <style>
+      @font-face {
+        font-family: ExposureTrialVar;
+        src: url(ExposureTrialVar.woff);
+      }
+      html,
+      body {
+        font-family: ExposureTrialVar;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: rgb(2, 55, 246);
+        color: rgb(46, 168, 243);
+        overflow: hidden;
+        position: relative;
+        cursor: none;
+      }
+
+      .spotlight {
+        position: fixed;
+        inset: 0;
+        background: radial-gradient(
+          circle 200px at 50% 50%,
+          transparent 10%,
+          rgba(255, 255, 255, 0.98)
+        );
+        pointer-events: none;
+      }
+
+      #sentence-placeholder {
+        font-size: 30px;
+        text-align: center;
+        transition: opacity 0.5s;
+        position: relative;
+      }
+
+      .hidden {
+        opacity: 0;
+      }
+
+      .pointer {
+        position: absolute;
+        right: 100%;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 10px;
+        height: 10px;
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 50%;
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+      }
+
+      .main-pg {
+        display: none;
+        text-align: center;
+      }
+
+      .ta-da {
+        opacity: 0;
+        transition: opacity 0.5s;
+        margin-top: 20px;
+      }
+
+      a {
+        color: rgb(46, 168, 243);
+        text-shadow: rgb(189, 224, 255) 1px 0 10px;
+        transition: color 0.3s ease, background-color 0.3s ease,
+          backdrop-filter 0.3s ease;
+        font-family: ExposureTrialVar;
+        text-decoration: none;
+        font-size: 30px;
+      }
+
+      #sentence-placeholder span {
+        margin: 0 2px;
+        text-shadow: rgb(189, 224, 255) 1px 0 10px;
+        transition: color 0.3s ease, background-color 0.3s ease,
+          backdrop-filter 0.3s ease;
+      }
+
+      #sentence-placeholder span:hover {
+        color: rgb(179, 173, 240);
+        backdrop-filter: blur(30px);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="spotlight"></div>
+    <div id="sentence-placeholder">
+      <div class="pointer"></div>
+
+      Loading...
+    </div>
+
+    <div class="main-pg">
+      <div class="ta-da">
+        <h2>
+          <a href="ta-da.html">browse top secret work</a>
+        </h2>
+      </div>
+    </div>
+
+    <script>
+      const sentences = [
+        "Hey GT team!",
+        "Welcome to my top secret invisible ink site",
+        "Shh!!!",
+        "Don't tell anyone you're here!｡･ﾟﾟ･",
+      ];
+
+      let currentIndex = 0;
+
+      function updateGradient(mouseX, mouseY) {
+        const gradientCenterX = (mouseX / window.innerWidth) * 100;
+        const gradientCenterY = (mouseY / window.innerHeight) * 100;
+
+        const revealedArea = document.querySelector(".spotlight");
+        revealedArea.style.background = `radial-gradient(
+                circle 100px at ${gradientCenterX}% ${gradientCenterY}%,
+                transparent 10%,
+                rgba(0, 0, 0, 0.9)
+            )`;
+      }
+
+      function displaySentence() {
+        const placeholder = document.getElementById("sentence-placeholder");
+        const pointer = placeholder.querySelector(".pointer");
+        placeholder.innerHTML = "";
+        placeholder.appendChild(pointer);
+
+        const currentSentence = sentences[currentIndex];
+        const spans = currentSentence.split("").map((char) => {
+          const span = document.createElement("span");
+          span.textContent = char;
+          span.classList.add("hidden");
+
+          span.addEventListener("mouseenter", () => {
+            span.classList.remove("hidden");
+            span.style.opacity = 1;
+          });
+
+          return span;
+        });
+
+        spans.forEach((span) => placeholder.appendChild(span));
+
+        const checkRevealedInterval = setInterval(() => {
+          if (
+            [...placeholder.children].every(
+              (span) => !span.classList.contains("hidden")
+            )
+          ) {
+            clearInterval(checkRevealedInterval);
+            setTimeout(() => {
+              currentIndex = (currentIndex + 1) % sentences.length;
+              if (currentIndex === 0) {
+                showMainPage();
+              } else {
+                displaySentence();
+              }
+            }, 500);
+          }
+        }, 100);
+      }
+
+      function showMainPage() {
+        const mainPage = document.querySelector(".main-pg");
+        const taDa = mainPage.querySelector(".ta-da");
+
+        mainPage.style.display = "block";
+        setTimeout(() => {
+          taDa.style.opacity = 1;
+        }, 100);
+      }
+
+      document.addEventListener("mousemove", (e) => {
+        updateGradient(e.clientX, e.clientY);
+      });
+
+      document.addEventListener("DOMContentLoaded", displaySentence);
+    </script>
+  </body>
+</html>
